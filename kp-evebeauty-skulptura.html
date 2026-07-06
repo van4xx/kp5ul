@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Коммерческое предложение — evebeauty.ru и скульптура.com на Next.js</title>
+<meta name="description" content="Разработка и продвижение двух сайтов на Next.js: SEO, Search Console + Яндекс Вебмастер, реклама, Яндекс Бизнес и 2ГИС. 7 дней, 400 000 ₽.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#18130E; --ink-2:#211A12; --ink-soft:#3C332A;
+    --paper:#F5EFE6; --paper-2:#EFE6D7; --card:#FBF7F0;
+    --line:#E2D7C5; --line-2:#D6C8B2;
+    --line-dark:rgba(232,214,182,.16);
+    --bronze:#AE7C36; --bronze-deep:#8B6021; --champagne:#D9BB8B;
+    --muted:#6E6053; --muted-2:#8C7C6A;
+    --cream-on-dark:#EFE5D5; --muted-on-dark:#A99A85;
+    --ok:#4E7B52;
+    --serif:'Playfair Display', Georgia, 'Times New Roman', serif;
+    --sans:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --wrap:1180px;
+    --pad:clamp(1.15rem,5vw,2.5rem);
+    --sect:clamp(4rem,10vw,7.5rem);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); font-weight:400; line-height:1.62;
+    font-size:clamp(1rem,.55vw + .9rem,1.075rem);
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  /* grain overlay */
+  body::before{
+    content:""; position:fixed; inset:0; z-index:9999; pointer-events:none;
+    opacity:.05; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  ::selection{background:var(--bronze);color:#fff}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:600;line-height:1.08;margin:0;letter-spacing:-.01em}
+  p{margin:0}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+
+  /* ---------- utility type ---------- */
+  .eyebrow{
+    font-family:var(--sans); font-weight:700; font-size:.72rem; letter-spacing:.24em;
+    text-transform:uppercase; color:var(--bronze); display:inline-flex; align-items:center; gap:.6em;
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--bronze);display:inline-block}
+  .idx{font-family:var(--serif);font-style:italic;color:var(--bronze);font-weight:500}
+
+  /* ---------- topbar ---------- */
+  .topbar{position:relative;z-index:5;border-bottom:1px solid var(--line-dark)}
+  .topbar-inner{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-top:1.15rem;padding-bottom:1.15rem}
+  .brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;letter-spacing:.02em;color:var(--cream-on-dark)}
+  .brand b{color:var(--champagne)}
+  .topbar .meta{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-on-dark)}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;background:var(--ink);color:var(--cream-on-dark);overflow:hidden;isolation:isolate}
+  .hero::after{
+    content:"";position:absolute;z-index:0;inset:0;
+    background:
+      radial-gradient(60% 60% at 78% 12%, rgba(174,124,54,.28), transparent 60%),
+      radial-gradient(50% 55% at 8% 92%, rgba(217,187,139,.10), transparent 62%);
+    pointer-events:none;
+  }
+  .hero-inner{position:relative;z-index:2;padding-top:clamp(3.5rem,9vw,6.5rem);padding-bottom:clamp(3.5rem,9vw,6rem)}
+  .hero .kicker{margin-bottom:1.6rem}
+  .hero h1{
+    font-size:clamp(2.5rem,6.4vw,5.35rem);font-weight:700;letter-spacing:-.022em;
+    max-width:16ch;
+  }
+  .hero h1 em{font-style:italic;color:var(--champagne);position:relative}
+  .hero .lead{
+    margin-top:1.7rem;max-width:56ch;color:#D8CDBB;font-size:clamp(1.05rem,1.4vw,1.28rem);
+    font-weight:400;line-height:1.55;
+  }
+  .hero .lead b{color:var(--cream-on-dark);font-weight:600}
+  .sites-line{margin-top:1.5rem;display:flex;flex-wrap:wrap;gap:.55rem .9rem;font-size:.95rem}
+  .sites-line span{display:inline-flex;align-items:center;gap:.5em;color:#CFC3B0}
+  .sites-line .dot{width:6px;height:6px;border-radius:50%;background:var(--bronze)}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:clamp(2.6rem,5vw,3.6rem);
+    background:var(--line-dark);border:1px solid var(--line-dark);border-radius:10px;overflow:hidden}
+  .stat{background:linear-gradient(180deg,rgba(255,255,255,.015),transparent);padding:clamp(1.3rem,3vw,2rem) clamp(1.1rem,2.5vw,1.7rem)}
+  .stat .num{font-family:var(--serif);font-weight:700;font-size:clamp(2.1rem,5vw,3.4rem);color:var(--champagne);line-height:1}
+  .stat .lbl{margin-top:.6rem;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-on-dark)}
+  @media(max-width:620px){.stats{grid-template-columns:1fr}.stat{display:flex;align-items:baseline;justify-content:space-between;gap:1rem}.stat .lbl{margin-top:0;text-align:right}}
+
+  /* ---------- section frame ---------- */
+  section{padding-top:var(--sect);padding-bottom:var(--sect);position:relative}
+  .sect-head{max-width:60ch;margin-bottom:clamp(2.4rem,5vw,3.6rem)}
+  .sect-head h2{font-size:clamp(1.95rem,4.2vw,3.15rem);margin-top:1rem;font-weight:600}
+  .sect-head .sub{margin-top:1.1rem;color:var(--muted);font-size:1.06rem;max-width:56ch}
+  .rule{height:1px;background:linear-gradient(90deg,var(--line-2),transparent);border:0;margin:0}
+
+  .band-dark{background:var(--ink);color:var(--cream-on-dark)}
+  .band-dark .sect-head .sub{color:var(--muted-on-dark)}
+  .band-dark .eyebrow{color:var(--champagne)} .band-dark .eyebrow::before{background:var(--champagne)}
+  .band-dark .idx{color:var(--champagne)}
+  .band-2{background:var(--paper-2)}
+
+  /* ---------- generic list ---------- */
+  ul.clean{list-style:none;margin:0;padding:0;display:grid;gap:.85rem}
+  ul.clean li{position:relative;padding-left:1.7rem;color:var(--ink-soft);line-height:1.55}
+  ul.clean li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:8px;border:1px solid var(--bronze);
+    background:transparent;transform:rotate(45deg)}
+  .band-dark ul.clean li{color:#CFC3B0}
+  .band-dark ul.clean li::before{border-color:var(--champagne)}
+  ul.check{list-style:none;margin:0;padding:0;display:grid;gap:.7rem}
+  ul.check li{position:relative;padding-left:1.9rem;color:var(--ink-soft)}
+  ul.check li::before{content:"";position:absolute;left:.1rem;top:.5em;width:11px;height:6px;border-left:2px solid var(--ok);border-bottom:2px solid var(--ok);transform:rotate(-45deg)}
+  ul.cross{list-style:none;margin:0;padding:0;display:grid;gap:.7rem}
+  ul.cross li{position:relative;padding-left:1.9rem;color:var(--muted)}
+  ul.cross li::before{content:"×";position:absolute;left:.25rem;top:-.05em;color:var(--bronze-deep);font-size:1.15rem;font-weight:700}
+
+  /* ---------- cards ---------- */
+  .grid{display:grid;gap:clamp(1rem,2vw,1.4rem)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:900px){.g3{grid-template-columns:1fr 1fr}}
+  @media(max-width:680px){.g2,.g3{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:clamp(1.4rem,2.6vw,2rem);position:relative}
+  .card h3{font-size:1.3rem;font-weight:600}
+  .card .big-idx{font-family:var(--serif);font-size:1.05rem;color:var(--bronze);font-style:italic;display:block;margin-bottom:.7rem}
+  .band-dark .card{background:var(--ink-2);border-color:var(--line-dark)}
+
+  /* ---------- diagnosis (audit before) ---------- */
+  .diag{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+  @media(max-width:760px){.diag{grid-template-columns:1fr}}
+  .diag .card h3{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+  .diag .host{font-family:var(--sans);font-size:.8rem;font-weight:600;color:var(--muted-2);letter-spacing:.02em}
+  .metricrow{display:flex;gap:.9rem;flex-wrap:wrap;margin:1.1rem 0 .3rem}
+  .pill{display:inline-flex;flex-direction:column;gap:.15rem;padding:.6rem .85rem;border:1px solid var(--line);border-radius:9px;background:var(--paper);min-width:92px}
+  .pill .pv{font-family:var(--serif);font-weight:700;font-size:1.35rem;color:var(--ink)}
+  .pill .pl{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+  .pill.bad .pv{color:#9a3b2f}
+  .flags{margin-top:1.1rem;display:grid;gap:.55rem}
+  .flag{font-size:.93rem;color:var(--ink-soft);padding-left:1.4rem;position:relative}
+  .flag::before{content:"!";position:absolute;left:0;top:0;color:#fff;background:var(--bronze-deep);width:1rem;height:1rem;border-radius:50%;font-size:.7rem;font-weight:700;display:grid;place-items:center;line-height:1}
+
+  /* ---------- sites ---------- */
+  .site-panel{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .site-top{padding:clamp(1.5rem,3vw,2.1rem);border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--paper-2),transparent)}
+  .site-top .nm{font-family:var(--serif);font-size:1.5rem;font-weight:700}
+  .site-top .tg{margin-top:.6rem;color:var(--muted);font-size:.98rem}
+  .site-body{padding:clamp(1.5rem,3vw,2.1rem)}
+  .sub-label{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bronze);font-weight:700;margin:0 0 1rem}
+  .routes{display:grid;gap:.05rem;margin-bottom:1.7rem}
+  .route{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:1rem;padding:.72rem 0;border-top:1px solid var(--line)}
+  .route:first-child{border-top:0}
+  .route code{font-family:var(--sans);font-weight:700;font-size:.86rem;color:var(--ink);background:var(--paper-2);padding:.15rem .5rem;border-radius:6px;height:fit-content;white-space:nowrap;overflow-x:auto}
+  .route .rp{font-size:.9rem;color:var(--muted);line-height:1.5}
+  @media(max-width:560px){.route{grid-template-columns:1fr;gap:.35rem}}
+  .tags{display:flex;flex-wrap:wrap;gap:.5rem}
+  .tag{font-size:.82rem;line-height:1.35;padding:.4rem .7rem;border:1px solid var(--line-2);border-radius:100px;color:var(--ink-soft);background:var(--paper)}
+
+  /* ---------- SEO blocks ---------- */
+  .seoblock{border-top:1px solid var(--line);padding:1.6rem 0}
+  .seoblock:first-child{border-top:0}
+  .seoblock h3{font-size:1.32rem;margin-bottom:1rem;font-weight:600}
+  .seogrid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem 2.2rem}
+  @media(max-width:760px){.seogrid{grid-template-columns:1fr}}
+  .kw{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.3rem}
+  .kw .tag{background:var(--ink);color:var(--cream-on-dark);border-color:transparent;font-weight:500}
+
+  /* ---------- ads ---------- */
+  .campaign{border:1px solid var(--line);border-radius:11px;padding:1.1rem 1.2rem;background:var(--paper);margin-bottom:.8rem}
+  .campaign .ct{display:flex;align-items:center;gap:.6rem;font-family:var(--serif);font-weight:700;font-size:1.08rem;margin-bottom:.45rem}
+  .campaign .ct::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--bronze)}
+  .campaign p{font-size:.92rem;color:var(--muted);line-height:1.55}
+  .goalchips{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1rem}
+  .goalchips .tag{font-size:.8rem}
+  .callout{border-left:3px solid var(--bronze);background:var(--card);padding:1.3rem 1.5rem;border-radius:0 10px 10px 0;margin-top:1.4rem}
+  .callout .h{font-family:var(--serif);font-weight:700;font-size:1.05rem;margin-bottom:.5rem;color:var(--ink)}
+  .callout p{color:var(--muted);font-size:.94rem}
+
+  /* ---------- stack ---------- */
+  .stackgroup{margin-bottom:2rem}
+  .stackgroup h3{font-size:1.05rem;letter-spacing:.02em;color:var(--ink);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid var(--line-dark);font-family:var(--sans);font-weight:800;text-transform:uppercase;font-size:.8rem;letter-spacing:.18em;color:var(--champagne)}
+  .stackitems{display:grid;grid-template-columns:repeat(2,1fr);gap:.9rem 1.6rem}
+  @media(max-width:760px){.stackitems{grid-template-columns:1fr}}
+  .si{display:grid;gap:.2rem}
+  .si .n{font-weight:700;color:var(--cream-on-dark);font-size:.98rem}
+  .si .w{color:var(--muted-on-dark);font-size:.87rem;line-height:1.5}
+
+  /* ---------- timeline ---------- */
+  .timeline{position:relative;margin-top:1rem}
+  .day{display:grid;grid-template-columns:auto 1fr;gap:clamp(1rem,3vw,2.2rem);padding-bottom:2.2rem;position:relative}
+  .day:last-child{padding-bottom:0}
+  .daymark{position:relative;text-align:right;min-width:88px}
+  .daymark .dn{font-family:var(--serif);font-weight:700;font-size:1.9rem;color:var(--ink);line-height:1}
+  .daymark .dd{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bronze);margin-top:.35rem}
+  .dayline{position:relative;padding-left:clamp(1rem,3vw,2.2rem);border-left:1px solid var(--line-2)}
+  .dayline::before{content:"";position:absolute;left:-5px;top:.35rem;width:9px;height:9px;border-radius:50%;background:var(--bronze);box-shadow:0 0 0 4px var(--paper)}
+  .band-2 .dayline::before{box-shadow:0 0 0 4px var(--paper-2)}
+  .day:last-child .dayline{border-left-color:transparent}
+  .dayline h3{font-size:1.28rem;font-weight:600;margin-bottom:.75rem}
+  @media(max-width:600px){
+    .day{grid-template-columns:1fr;gap:.5rem}
+    .daymark{text-align:left;display:flex;align-items:baseline;gap:.7rem}
+    .daymark .dd{margin-top:0}
+    .dayline{border-left:0;padding-left:0}
+    .dayline::before{display:none}
+  }
+
+  /* ---------- pricing ---------- */
+  .price-wrap{background:var(--ink);color:var(--cream-on-dark);border-radius:16px;overflow:hidden;border:1px solid var(--line-dark)}
+  .price-row{display:grid;grid-template-columns:1fr auto;gap:1.2rem;align-items:baseline;padding:1.15rem clamp(1.3rem,3vw,2.2rem);border-top:1px solid var(--line-dark)}
+  .price-row:first-child{border-top:0}
+  .price-row .it{color:#D8CDBB;font-size:.98rem;line-height:1.45}
+  .price-row .pr{font-family:var(--serif);font-weight:600;font-size:1.3rem;color:var(--cream-on-dark);white-space:nowrap}
+  .price-total{display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:baseline;padding:1.6rem clamp(1.3rem,3vw,2.2rem);background:linear-gradient(90deg,rgba(174,124,54,.16),rgba(174,124,54,.04));border-top:1px solid var(--champagne)}
+  .price-total .tl{font-family:var(--serif);font-size:1.2rem;font-weight:600;color:var(--champagne);letter-spacing:.02em}
+  .price-total .tv{font-family:var(--serif);font-weight:800;font-size:clamp(2rem,5vw,2.9rem);color:var(--champagne);line-height:1}
+  .price-note{font-size:.86rem;color:var(--muted);margin-top:1rem;text-align:center}
+  @media(max-width:430px){.price-row{grid-template-columns:1fr;gap:.35rem}.price-row .pr{font-size:1.15rem}.price-total{grid-template-columns:1fr;gap:.4rem}}
+
+  /* ---------- value props ---------- */
+  .vp{display:grid;gap:.6rem}
+  .vp h3{font-size:1.28rem;font-weight:600;color:var(--cream-on-dark)}
+  .vp h3 .vn{font-family:var(--serif);font-style:italic;color:var(--champagne);margin-right:.5rem}
+  .vp p{color:var(--muted-on-dark);font-size:.95rem;line-height:1.55}
+
+  /* ---------- CTA / footer ---------- */
+  .cta{background:var(--ink);color:var(--cream-on-dark);text-align:center;position:relative;overflow:hidden;isolation:isolate}
+  .cta::after{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(60% 80% at 50% 0%,rgba(174,124,54,.25),transparent 60%)}
+  .cta-inner{position:relative;z-index:2}
+  .cta h2{font-size:clamp(2.1rem,5vw,3.6rem);font-weight:700;max-width:18ch;margin:0 auto}
+  .cta h2 em{font-style:italic;color:var(--champagne)}
+  .cta .lead{margin:1.4rem auto 0;max-width:52ch;color:#D8CDBB}
+  .contacts{display:flex;flex-wrap:wrap;gap:1rem 2.4rem;justify-content:center;margin-top:2.4rem}
+  .contact{text-align:left}
+  .contact .cl{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-on-dark)}
+  .contact .cv{font-family:var(--serif);font-size:1.25rem;color:var(--cream-on-dark);margin-top:.25rem}
+  .foot{border-top:1px solid var(--line-dark);margin-top:clamp(3rem,7vw,5rem);padding-top:1.8rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;font-size:.78rem;color:var(--muted-on-dark);letter-spacing:.02em}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+  .hero .stagger{opacity:0;transform:translateY(22px);animation:rise .95s cubic-bezier(.16,1,.3,1) forwards}
+  .hero .kicker{animation-delay:.05s}.hero h1{animation-delay:.18s}.hero .lead{animation-delay:.34s}
+  .hero .sites-line{animation-delay:.46s}.hero .stats{animation-delay:.58s}
+  @keyframes rise{to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.reveal,.hero .stagger{opacity:1!important;transform:none!important;animation:none!important}}
+
+  @media print{
+    body::before,.hero::after,.cta::after{display:none}
+    .hero,.band-dark,.price-wrap,.cta{background:#fff!important;color:#111!important}
+    section{padding:1.2rem 0}
+    .reveal{opacity:1!important;transform:none!important}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">Sozdai<b>.</b> Studio</div>
+      <div class="meta">Коммерческое предложение · Июль 2026</div>
+    </div>
+  </div>
+  <div class="wrap hero-inner">
+    <div class="eyebrow kicker stagger">Разработка и продвижение под ключ</div>
+    <h1 class="stagger">Два сайта на <em>Next.js</em> — от кода до первых заявок</h1>
+    <p class="lead stagger">Полная переделка <b>evebeauty.ru</b> и <b>скульптура.com</b> на современном стеке, продвинутое SEO, аналитика, реклама в Яндекс&nbsp;Директе и карточки в Яндекс&nbsp;Бизнес и 2ГИС. Один подрядчик, один результат — <b>измеримый поток клиентов</b>.</p>
+    <div class="sites-line stagger">
+      <span><i class="dot"></i>evebeauty.ru — бьюти-коворкинг, Мурино</span>
+      <span><i class="dot"></i>скульптура.com — студия коррекции фигуры, м.&nbsp;Беговая</span>
+    </div>
+    <div class="stats stagger">
+      <div class="stat"><div class="num">2</div><div class="lbl">сайта под ключ</div></div>
+      <div class="stat"><div class="num">7</div><div class="lbl">дней до запуска</div></div>
+      <div class="stat"><div class="num">400&thinsp;000&nbsp;₽</div><div class="lbl">за все работы</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 01 WHY ============ -->
+<section id="why">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">01</span>&nbsp;&nbsp;Зачем переделка</div>
+      <h2>Сейчас сайты тормозят рост — и удорожают рекламу</h2>
+      <p class="sub">Мы провели технический аудит обоих сайтов. Вот что нашли и почему это напрямую бьёт по заявкам и по стоимости клика.</p>
+    </div>
+
+    <div class="diag reveal" style="margin-bottom:2.4rem">
+      <div class="card">
+        <h3>evebeauty.ru <span class="host">Tilda · бьюти-коворкинг</span></h3>
+        <div class="metricrow">
+          <div class="pill bad"><span class="pv">663&nbsp;КБ</span><span class="pl">вес главной</span></div>
+          <div class="pill bad"><span class="pv">92</span><span class="pl">скрипта</span></div>
+          <div class="pill"><span class="pv">✓</span><span class="pl">Метрика есть</span></div>
+        </div>
+        <div class="flags">
+          <div class="flag">Нет микроразметки Schema.org — бледный сниппет в выдаче</div>
+          <div class="flag">8 дублирующих форм брони — путаница в конверсиях</div>
+          <div class="flag">Опечатка в адресе (Екатерин<b>и</b>нская / Екатерин<b>е</b>нская)</div>
+          <div class="flag">Привязка к конструктору: абонплата, нет владения кодом</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>скульптура.com <span class="host">PHP / reg.ru · коррекция фигуры</span></h3>
+        <div class="metricrow">
+          <div class="pill bad"><span class="pv">нет</span><span class="pl">аналитики</span></div>
+          <div class="pill bad"><span class="pv">lang=en</span><span class="pl">на рус. сайте</span></div>
+          <div class="pill bad"><span class="pv">no-cache</span><span class="pl">кэш выключен</span></div>
+        </div>
+        <div class="flags">
+          <div class="flag">Ни Метрики, ни GA — рекламу физически нечем измерять</div>
+          <div class="flag">Нет sitemap.xml, robots.txt и canonical (дубли www/без-www)</div>
+          <div class="flag">Open Graph только og:image, description = слоган без ключей</div>
+          <div class="flag">Нет отзывов клиентов, IDN-домен в зоне .com</div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="clean reveal" style="max-width:none;column-gap:2.4rem">
+      <li><b>Медленный сайт вы оплачиваете дважды.</b> Яндекс учитывает скорость и удобство в рейтинге объявлений — за тяжёлую страницу платите и потерянными заявками, и завышенной ставкой клика.</li>
+      <li><b>Реклама вслепую.</b> Без Метрики и целей на скульптура.com любой бюджет уходит в «чёрный ящик»: не видно, какие запросы дают звонки, что отключить, а что масштабировать.</li>
+      <li><b>Противоречивые сигналы поисковику.</b> lang=en на русском сайте, отключённый кэш, дубли без canonical — всё это роняет позиции и поведенческие метрики ещё до всякой рекламы.</li>
+      <li><b>Бледный сниппет.</b> Без Schema.org в выдаче нет цен, рейтинга, адреса и часов — по вашему результату кликают реже, чем по конкурентам на тех же позициях.</li>
+      <li><b>Аренда вместо владения.</b> Tilda — это абонплата навсегда, потолок по скорости и SEO, зависимость от чужой платформы. Next.js — ваш собственный быстрый сайт без ежемесячных платежей за сам факт существования.</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 02 SCOPE ============ -->
+<section id="scope" class="band-2">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">02</span>&nbsp;&nbsp;Состав работ</div>
+      <h2>Шесть направлений — одни руки, синхронно</h2>
+      <p class="sub">SEO, реклама и карты работают на один результат только тогда, когда их настраивает та же команда, что пишет сайт. Именно так мы и работаем.</p>
+    </div>
+    <div class="grid g3 reveal">
+      <div class="card"><span class="big-idx">01</span><h3>Разработка на Next.js</h3><p style="color:var(--muted);margin-top:.6rem;font-size:.95rem">Два сайта на Next.js 15 + React 19 + TypeScript. Индивидуальный дизайн, адаптив, скорость, владение кодом.</p></div>
+      <div class="card"><span class="big-idx">02</span><h3>Продвинутое SEO</h3><p style="color:var(--muted);margin-top:.6rem;font-size:.95rem">Семантика, on-page, микроразметка Schema.org, sitemap/robots, canonical, локальное SEO под гео.</p></div>
+      <div class="card"><span class="big-idx">03</span><h3>Search Console + Вебмастер</h3><p style="color:var(--muted);margin-top:.6rem;font-size:.95rem">Верификация, карты сайта, индексация, Core Web Vitals, региональность, мониторинг ошибок.</p></div>
+      <div class="card"><span class="big-idx">04</span><h3>Реклама в Яндекс Директе</h3><p style="color:var(--muted);margin-top:.6rem;font-size:.95rem">Поиск, РСЯ, ретаргетинг, цели Метрики, UTM, минус-слова, объявления и A/B под каждую нишу.</p></div>
+      <div class="card"><span class="big-idx">05</span><h3>Яндекс Бизнес + 2ГИС</h3><p style="color:var(--muted);margin-top:.6rem;font-size:.95rem">Перенастройка карточек: единый NAP, рубрики, услуги с ценами, фото, отзывы, гео-точка входа.</p></div>
+      <div class="card"><span class="big-idx">06</span><h3>Инфраструктура и 152-ФЗ</h3><p style="color:var(--muted);margin-top:.6rem;font-size:.95rem">Docker + Caddy, wildcard-SSL, кэш, security-заголовки, политика ПДн и cookie-баннер.</p></div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 03 SITES ============ -->
+<section id="sites">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">03</span>&nbsp;&nbsp;Два сайта</div>
+      <h2>Структура и возможности каждого сайта</h2>
+      <p class="sub">Вместо одной перегруженной страницы — продуманная структура посадочных под услуги, гео-запросы и конверсию.</p>
+    </div>
+
+    <!-- SITE 1 -->
+    <div class="site-panel reveal" style="margin-bottom:1.8rem">
+      <div class="site-top">
+        <div class="nm">evebeauty.ru — бьюти-коворкинг в Мурино</div>
+        <div class="tg">Оборудованное рабочее место для бьюти-мастера — почасово и посуточно, первый час бесплатно</div>
+      </div>
+      <div class="site-body">
+        <p class="sub-label">Структура страниц</p>
+        <div class="routes">
+          <div class="route"><code>/</code><div class="rp">Главная: оффер аренды мест, гео Мурино/СПб, «первый час бесплатно», цены-якоря, единый CTA. LocalBusiness/BeautySalon JSON-LD.</div></div>
+          <div class="route"><code>/mesta</code><div class="rp">Каталог рабочих зон: карточки каждого типа места с фото, оснащением, площадью. ItemList.</div></div>
+          <div class="route"><code>/mesta/[slug]</code><div class="rp">Детальная страница зоны под SEO-запросы («аренда маникюрного места Мурино»): оборудование, тарифы, галерея, форма с предвыбором.</div></div>
+          <div class="route"><code>/uslugi</code><div class="rp">Направления аренды (маникюр, брови, парикмахер, визаж, косметология, массаж, SPA, педикюр) — посадочные под нишевые запросы мастеров.</div></div>
+          <div class="route"><code>/tseny</code><div class="rp">Единый прозрачный прайс: почасовые и посуточные тарифы, абонементы. OfferCatalog JSON-LD.</div></div>
+          <div class="route"><code>/masteram</code><div class="rp">Посадочная «для мастеров»: выгоды коворкинга, как проходит день аренды, правила, FAQ — наращивает контент и снимает возражения.</div></div>
+          <div class="route"><code>/otzyvy</code><div class="rp">Отзывы мастеров-арендаторов с Review/AggregateRating — соцдоказательство и усиление сниппета.</div></div>
+          <div class="route"><code>/kontakty</code><div class="rp">Контакты с исправленным адресом (единый NAP), карта, часы, мессенджеры, схема проезда от метро.</div></div>
+          <div class="route"><code>/bronirovanie</code><div class="rp">Одна форма брони вместо 8 дублей Tilda: выбор зоны, даты, длительности → CRM/почта/Telegram, антиспам, цель для Метрики и Директа.</div></div>
+        </div>
+        <p class="sub-label">Что реализуем</p>
+        <div class="tags">
+          <span class="tag">Единая форма брони → CRM/Telegram/почта</span>
+          <span class="tag">Полная Schema.org (которой сейчас нет)</span>
+          <span class="tag">next/image: уход от 663 КБ и 92 скриптов</span>
+          <span class="tag">Server Components, минимум JS</span>
+          <span class="tag">Единый NAP + исправление опечатки адреса</span>
+          <span class="tag">SEO-контент вместо thin-content</span>
+          <span class="tag">Перенос Метрики + цели на бронь</span>
+          <span class="tag">Владение кодом, без абонплаты Tilda</span>
+          <span class="tag">Cookie-баннер + 152-ФЗ</span>
+          <span class="tag">Mobile-first, все состояния UI</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SITE 2 -->
+    <div class="site-panel reveal">
+      <div class="site-top">
+        <div class="nm">скульптура.com — студия коррекции фигуры у м. Беговая</div>
+        <div class="tg">Аппаратный и ручной массаж для коррекции фигуры — видимый результат у метро Беговая, СПб</div>
+      </div>
+      <div class="site-body">
+        <p class="sub-label">Структура страниц</p>
+        <div class="routes">
+          <div class="route"><code>/</code><div class="rp">Главная: оффер студии, гео м. Беговая/СПб, ключевые процедуры, цены-якоря, видео техник, CTA на запись. Корректный lang=ru. MedicalBusiness JSON-LD.</div></div>
+          <div class="route"><code>/uslugi</code><div class="rp">Каталог процедур: аппаратный, ручной массаж, направления коррекции — описание, показания, длительность, цена (2 900–8 100 ₽).</div></div>
+          <div class="route"><code>/uslugi/[slug]</code><div class="rp">Детальная страница процедуры: как проходит, эффект, противопоказания, цена, видео, запись — наращивает ключи и гео.</div></div>
+          <div class="route"><code>/tseny</code><div class="rp">Прайс: разовые (2 900–8 100 ₽), абонементы (15 600–70 000 ₽), сертификаты. OfferCatalog JSON-LD.</div></div>
+          <div class="route"><code>/sertifikaty</code><div class="rp">Подарочные сертификаты: номиналы, оформление заявки → мессенджер/CRM. Посадочная под сезонный спрос.</div></div>
+          <div class="route"><code>/otzyvy</code><div class="rp">Отзывы клиентов (которых сейчас нет) с Review/AggregateRating — закрывает ключевое возражение при чеке до 70 000 ₽.</div></div>
+          <div class="route"><code>/video</code><div class="rp">Галерея видео техник с оптимизированной подачей и VideoObject JSON-LD — фактор доверия.</div></div>
+          <div class="route"><code>/faq</code><div class="rp">Вопросы-ответы с FAQPage JSON-LD — претендент на расширенный сниппет.</div></div>
+          <div class="route"><code>/zapis</code><div class="rp">Запись на процедуру → CRM/почта/Telegram, согласие 152-ФЗ, событие-цель для Метрики.</div></div>
+        </div>
+        <p class="sub-label">Что реализуем</p>
+        <div class="tags">
+          <span class="tag">Яндекс Метрика с нуля + цели (сейчас аналитики нет)</span>
+          <span class="tag">lang=en → lang=ru</span>
+          <span class="tag">Правильное кэширование вместо no-store</span>
+          <span class="tag">sitemap.xml + robots.txt + canonical</span>
+          <span class="tag">Полный Open Graph + Twitter Card</span>
+          <span class="tag">Schema: Medical/Service/FAQ/Video/Review</span>
+          <span class="tag">Раздел и сбор отзывов</span>
+          <span class="tag">Security-заголовки (HSTS/CSP)</span>
+          <span class="tag">Сохранение лёгкого HTML и TTFB ~0.2 c</span>
+          <span class="tag">Рекомендация основного домена в зоне .ru</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 04 SEO ============ -->
+<section id="seo" class="band-2">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">04</span>&nbsp;&nbsp;Продвинутое SEO</div>
+      <h2>Пять слоёв технического и смыслового SEO</h2>
+      <p class="sub">Не «прописать ключи», а перестроить сайты так, чтобы поисковик понимал, ранжировал и показывал их богатым сниппетом.</p>
+    </div>
+
+    <div class="reveal">
+      <div class="seoblock">
+        <h3><span class="idx">1</span>&nbsp; Техническое SEO</h3>
+        <div class="seogrid">
+          <ul class="clean">
+            <li>Серверный рендер (SSR/SSG) — HTML отдаётся готовым, цель по Core Web Vitals: LCP&nbsp;&lt;&nbsp;2.5&nbsp;с, INP&nbsp;&lt;&nbsp;200&nbsp;мс, CLS&nbsp;&lt;&nbsp;0.1.</li>
+            <li>Оптимизация загрузки: next/image (WebP/AVIF, lazy), next/font, критический CSS, code-splitting, preload LCP-изображения.</li>
+            <li>Кэширование и Brotli через Caddy; чиним отключённый кэш на скульптуре (no-store, Expires 1981).</li>
+          </ul>
+          <ul class="clean">
+            <li>robots.txt и sitemap.xml генерируются кодом (у скульптуры сейчас оба — 404).</li>
+            <li>Canonical на каждой странице + 301 www/без-www и http/https на единый хост.</li>
+            <li>Карта 301-редиректов со старых URL Tilda/PHP — сохраняем накопленный вес и позиции.</li>
+            <li>Корректный &lt;html lang="ru"&gt; на обоих (у скульптуры сейчас lang="en").</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="seoblock">
+        <h3><span class="idx">2</span>&nbsp; On-page</h3>
+        <div class="seogrid">
+          <ul class="clean">
+            <li>Формула title: услуга + район + город + УТП/бренд («Аренда бьюти-места в Мурино, СПб — от 280 ₽/час»).</li>
+            <li>Осмысленный meta description с ключами и гео вместо слогана «Форма важна».</li>
+            <li>Ровно один H1 и логичная иерархия H2/H3 под кластеры услуг.</li>
+          </ul>
+          <ul class="clean">
+            <li>Развёрнутый уникальный текст на посадочных вместо thin-content.</li>
+            <li>Описательные alt с ключом и гео; осмысленные имена файлов.</li>
+            <li>Внутренняя перелинковка хабами, описательные анкоры, устранение страниц-сирот.</li>
+            <li>Полный Open Graph + Twitter Card (1200×630, og:locale=ru_RU).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="seoblock">
+        <h3><span class="idx">3</span>&nbsp; Семантическое ядро и посадочные</h3>
+        <ul class="clean" style="margin-bottom:1.1rem">
+          <li>Сбор ядра: Wordstat + Keyword Planner + подсказки, чистка минус-словами, группировка по интенту и частотности.</li>
+          <li>Один кластер = одна страница: под каждый тип аренды/процедуру и под связку «услуга + район/метро».</li>
+          <li>Пилар-страницы «Аренда для бьюти-мастеров» и «Коррекция фигуры» + информационные страницы под People-Also-Ask.</li>
+        </ul>
+        <div class="kw">
+          <span class="tag">аренда маникюрного места Мурино</span>
+          <span class="tag">бьюти коворкинг СПб почасовая аренда</span>
+          <span class="tag">аренда парикмахерского кресла Девяткино</span>
+          <span class="tag">кабинет косметолога в аренду посуточно СПб</span>
+          <span class="tag">коррекция фигуры массажем Беговая</span>
+          <span class="tag">аппаратный массаж СПб цена</span>
+          <span class="tag">антицеллюлитный массаж абонемент</span>
+          <span class="tag">чем аппаратный массаж отличается от ручного</span>
+        </div>
+      </div>
+
+      <div class="seoblock">
+        <h3><span class="idx">4</span>&nbsp; Микроразметка Schema.org</h3>
+        <div class="seogrid">
+          <ul class="clean">
+            <li>HealthAndBeautyBusiness / MedicalBusiness: адрес, geo, телефон, часы, priceRange, sameAs (соцсети, Яндекс Бизнес, 2ГИС).</li>
+            <li>Service + Offer / OfferCatalog: прайс структурированно (аренда 280–480 ₽/час; процедуры 2 900–8 100 ₽, абонементы до 70 000 ₽).</li>
+            <li>FAQPage — на блоках вопросов-ответов (претендент на rich-сниппет).</li>
+          </ul>
+          <ul class="clean">
+            <li>Review + AggregateRating — только по реальным отзывам, без выдуманных рейтингов.</li>
+            <li>BreadcrumbList — хлебные крошки на всех вложенных страницах.</li>
+            <li>VideoObject / ImageObject — для видео техник и галерей.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="seoblock">
+        <h3><span class="idx">5</span>&nbsp; Локальное SEO</h3>
+        <ul class="clean">
+          <li>NAP-консистентность символ-в-символ: сайт ↔ Schema ↔ Яндекс Бизнес ↔ 2ГИС. Устранение опечатки адреса на evebeauty.</li>
+          <li>Гео-запросы в контент и метаданные: Мурино/Девяткино и м. Беговая/Приморский район; гео-блоки «как добраться» с картой.</li>
+          <li>Локальные посадочные «услуга + метро», мониторинг локальной выдачи и наращивание отзывов на картах.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 05 WEBMASTERS ============ -->
+<section id="webmasters">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">05</span>&nbsp;&nbsp;Индексация</div>
+      <h2>Google Search Console + Яндекс Вебмастер</h2>
+      <p class="sub">Оба сайта заводим, верифицируем и берём под мониторинг — включая корректную работу с IDN-доменом скульптуры (xn--80atdqfckfd1g.com).</p>
+    </div>
+    <div class="grid g2 reveal">
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Google Search Console</p>
+        <ul class="clean">
+          <li>Оба ресурса как domain property, подтверждение через DNS TXT (покрывает http/https, www и без-www сразу).</li>
+          <li>Для скульптуры — корректное распознавание IDN по Punycode xn--80atdqfckfd1g.com.</li>
+          <li>Отправка sitemap.xml, проверка отчёта «Индексирование»: все продающие страницы в индексе.</li>
+          <li>Ручная приоритетная индексация ключевых страниц через «Проверку URL».</li>
+          <li>301 со старых URL, устранение 404, канонизация, весь трафик на HTTPS.</li>
+          <li>Отчёт Core Web Vitals (мобайл/десктоп) и валидность структурированных данных.</li>
+          <li>Email-уведомления о критичных проблемах, передача доступов клиенту.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Яндекс Вебмастер</p>
+        <ul class="clean">
+          <li>Добавление и верификация обоих сайтов, метод, устойчивый к передеплою.</li>
+          <li>Основное зеркало и склейка дублей www/без-www на скульптуре (301 через Caddy).</li>
+          <li>Отправка sitemap и корректный robots.txt (у скульптуры оба сейчас 404).</li>
+          <li>Региональность: привязка «Санкт-Петербург» (Мурино / м. Беговая) для гео-запросов.</li>
+          <li>Контроль обхода и «Страниц в поиске», ручной переобход важных страниц.</li>
+          <li>Диагностика, валидация Schema.org, мониторинг ИКС «до/после».</li>
+          <li>Связка с карточками Яндекс Бизнеса, Турбо-страницы — как опция.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 06 ADS ============ -->
+<section id="ads" class="band-2">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">06</span>&nbsp;&nbsp;Реклама</div>
+      <h2>Яндекс Директ под каждую нишу</h2>
+      <p class="sub">Сначала — аналитика и цели (без них реклама вслепую), затем структура кампаний, объявления и оптимизация по заявкам, а не по кликам.</p>
+    </div>
+
+    <div class="grid g2 reveal">
+      <div>
+        <p class="sub-label">evebeauty.ru — аренда мест для мастеров</p>
+        <div class="campaign"><div class="ct">Поиск</div><p>Горячий спрос по аренде мест в Мурино и на севере СПб, раздельные группы под каждое направление, гео + корректировки по метро, оффер «от 280 ₽/час, первый час бесплатно, без абонемента».</p></div>
+        <div class="campaign"><div class="ct">РСЯ</div><p>Догон и расширение аудитории мастеров (интересы «красота и здоровье», услуги для самозанятых, look-alike), креативы с реальными фото мест; отдельный набор под посуточную аренду.</p></div>
+        <div class="campaign"><div class="ct">Ретаргетинг</div><p>Сегменты Метрики: смотрели прайс/направление, но не забронировали. Напоминание «Ваш первый час — бесплатно».</p></div>
+        <div class="campaign"><div class="ct">Мастер кампаний / ЕПК <span style="font-weight:400;color:var(--muted);font-size:.8rem">— опция</span></div><p>Быстрый старт с оплатой за результат, пока обучаются Поиск и РСЯ.</p></div>
+        <div class="goalchips"><span class="tag">форма брони</span><span class="tag">клик по телефону</span><span class="tag">WhatsApp</span><span class="tag">Telegram</span><span class="tag">пробный час</span><span class="tag">составная «Заявка»</span></div>
+      </div>
+      <div>
+        <p class="sub-label">скульптура.com — коррекция фигуры</p>
+        <div class="campaign"><div class="ct">Поиск</div><p>Спрос по коррекции фигуры и массажу с гео-упором на м. Беговая и Приморский район, раздельные группы (аппаратный, ручной, курс/абонемент, сертификат), честный посыл по прайсу.</p></div>
+        <div class="campaign"><div class="ct">РСЯ</div><p>Прогрев отложенного спроса: интересы «ЗОЖ/похудение», женская аудитория 25–55, look-alike, кадры из видео техник; отдельная кампания под сертификаты с сезонным усилением.</p></div>
+        <div class="campaign"><div class="ct">Ретаргетинг</div><p>Смотрел прайс/абонементы/сертификаты, досмотрел видео — догон оффером пробной процедуры и восприятия цены курса за сеанс.</p></div>
+        <div class="campaign"><div class="ct">Мастер кампаний / ЕПК <span style="font-weight:400;color:var(--muted);font-size:.8rem">— опция</span></div><p>Особенно полезен на старте: даёт первые заявки, пока у сайта нет истории и статистики.</p></div>
+        <div class="goalchips"><span class="tag">Метрика с нуля</span><span class="tag">запись</span><span class="tag">WhatsApp/Telegram</span><span class="tag">сертификат</span><span class="tag">абонемент</span><span class="tag">маршрут на картах</span></div>
+      </div>
+    </div>
+
+    <div class="grid g2 reveal" style="margin-top:1.6rem">
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Что делаем для обоих</p>
+        <ul class="clean">
+          <li>Аналитика — фундамент: донастройка Метрики на evebeauty, установка с нуля на скульптуре.</li>
+          <li>Цели под каждую нишу + составные «Заявка»/«Запись» для обучения автостратегий; ручная проверка срабатывания.</li>
+          <li>Сквозная UTM-разметка и связка Директ ↔ Метрика; ценность конверсии для абонементов/сертификатов.</li>
+          <li>Семантика и минус-слова, корректировки (&lt;18 −100%, гео на район).</li>
+          <li>Объявления 3–5 на группу, быстрые ссылки, A/B офферов, масштабирование сильных.</li>
+          <li>VK Реклама — опциональный доп-канал (видео/до-после, лид-формы).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Юридически чисто</p>
+        <ul class="clean">
+          <li>Маркировка рекламы ОРД/ERID: в Директе и VK — автоматически через площадку; внешние креативы регистрируем отдельно.</li>
+          <li>152-ФЗ на посадочных: согласие на обработку ПДн в формах, политика и cookie-баннер.</li>
+          <li>Достоверность обещаний: для студии — без гарантий мед-результата и корректно с «до/после» (проходимость модерации).</li>
+          <li>Корректные реквизиты и адрес, lang=ru и canonical до запуска трафика.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout reveal">
+      <div class="h">Рекламный бюджет — отдельно от стоимости работ</div>
+      <p>Открутка показов и кликов в Яндекс Директе (и, опционально, VK Рекламе) оплачивается клиентом напрямую площадке и <b>не входит в 400 000 ₽</b>. В стоимость работ включены: сбор семантики, установка/донастройка Метрики и целей, UTM и связка с Директом, создание и первичная настройка структуры кампаний на обоих сайтах, объявления и A/B, автостратегии и минус-слова, проверка маркировки/152-ФЗ, а также ведение и оптимизация первого периода после запуска.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 07 ORGS ============ -->
+<section id="orgs">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">07</span>&nbsp;&nbsp;Организации на картах</div>
+      <h2>Перенастройка Яндекс Бизнес и 2ГИС</h2>
+      <p class="sub">Единый NAP на сайте и на картах — прямой сигнал доверия для локального ранжирования и главный источник клиентов «рядом со мной».</p>
+    </div>
+    <div class="grid g3 reveal">
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Яндекс Бизнес</p>
+        <ul class="clean">
+          <li>Подтверждение владения обеими карточками, полный доступ к правкам и отзывам.</li>
+          <li>Единый NAP как на сайте; устранение разнобоя адреса коворкинга.</li>
+          <li>Точная геометка входа (пин на дверь, этаж, помещение).</li>
+          <li>Рубрики, часы, услуги с ценами = как на сайте.</li>
+          <li>Фото по стандарту Карт + видео техник у студии.</li>
+          <li>Включение и обработка отзывов, публикации и акции.</li>
+          <li>Привязка карточки к Вебмастеру, заполнение «на 100%».</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">2ГИС</p>
+        <ul class="clean">
+          <li>Заявка на управление обеими организациями, подтверждение прав.</li>
+          <li>Единый NAP синхронно с Картами и сайтом.</li>
+          <li>Отдельная правка геоточки/входа (свой геокодер 2ГИС).</li>
+          <li>Рубрики из справочника, услуги с ценами.</li>
+          <li>Фото, логотип, у студии — кабинеты и аппаратура.</li>
+          <li>Кнопки действий (сайт, звонок, WhatsApp/Telegram).</li>
+          <li>Включение и сбор отзывов, контроль рейтинга.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Единый стандарт</p>
+        <ul class="clean">
+          <li>Эталон NAP в одном документе для сайта, Бизнеса и 2ГИС.</li>
+          <li>Schema.org LocalBusiness с теми же данными, что в карточках.</li>
+          <li>Единые геокоординаты входа во всех трёх системах.</li>
+          <li>Кросс-ссылки сайт ↔ карточки — замкнутый контур для локального SEO.</li>
+          <li>Один прайс-источник без расхождений.</li>
+          <li>Системный сбор отзывов (QR/ссылка) и шаблоны ответов.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ VALUE PROPS (dark band) ============ -->
+<section class="band-dark">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow">Почему мы</div>
+      <h2 style="color:var(--cream-on-dark)">Скорость и аналитика, которые окупают сами себя</h2>
+    </div>
+    <div class="grid g2 reveal" style="gap:2.2rem 3rem">
+      <div class="vp"><h3><span class="vn">01</span>Скорость удешевляет рекламу</h3><p>Вместо 663 КБ и 92 скриптов — статически собранный сайт с высокими Core Web Vitals. Быстрый сайт Директ ранжирует выше и списывает за клик меньше. Скорость — это не эстетика, это экономия бюджета.</p></div>
+      <div class="vp"><h3><span class="vn">02</span>Богатые сниппеты — выше CTR</h3><p>Полная Schema.org выводит в выдачу звёзды рейтинга, цену и гео. Больше органических переходов при тех же позициях и нулевой доплате за рекламу.</p></div>
+      <div class="vp"><h3><span class="vn">03</span>Рекламой можно управлять</h3><p>Метрика с целями на заявки, звонки и мессенджеры. Видно, какие запросы приносят клиентов — отключаем пустое, усиливаем рабочее. Реклама перестаёт быть ставкой вслепую.</p></div>
+      <div class="vp"><h3><span class="vn">04</span>Ваш код, без абонплаты</h3><p>Уходим с Тильды: собственный сайт на современном стеке, который принадлежит вам целиком. Нет ежемесячной аренды за сам факт существования сайта и потолка платформы.</p></div>
+      <div class="vp"><h3><span class="vn">05</span>Единая инфраструктура</h3><p>Docker + Caddy с авто-wildcard-SSL на собственном сервере. Обновления — в минуты, корректные заголовки кэширования и безопасности, без зависимости от чужого хостинга.</p></div>
+      <div class="vp"><h3><span class="vn">06</span>Экспертиза по РФ-продвижению</h3><p>Директ, Вебмастер и Search Console, Яндекс Бизнес и 2ГИС, 152-ФЗ — всё делают одни руки, синхронно с сайтом. SEO, реклама и карты работают на один результат: заявки.</p></div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 08 STACK ============ -->
+<section id="stack" class="band-dark">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">08</span>&nbsp;&nbsp;Технологический стек</div>
+      <h2 style="color:var(--cream-on-dark)">Современный стек — и зачем каждый инструмент</h2>
+      <p class="sub">Никакого «набора модного»: каждая технология решает конкретную задачу скорости, SEO или измеримости.</p>
+    </div>
+    <div class="reveal">
+      <div class="stackgroup">
+        <h3>Фронтенд</h3>
+        <div class="stackitems">
+          <div class="si"><span class="n">Next.js 15 (App Router)</span><span class="w">Единый фреймворк: серверный рендер + маршрутизация + SEO из коробки вместо Tilda и самописного PHP.</span></div>
+          <div class="si"><span class="n">React 19 (Server Components)</span><span class="w">Серверные компоненты — меньше JS в браузере, быстрее загрузка.</span></div>
+          <div class="si"><span class="n">TypeScript strict</span><span class="w">Типобезопасность ловит ошибки до прода — критично при переносе двух живых сайтов за неделю.</span></div>
+          <div class="si"><span class="n">Tailwind CSS</span><span class="w">Утилитарные стили без раздувания CSS; серверная сборка убирает FOUC.</span></div>
+          <div class="si"><span class="n">next/font (self-hosted)</span><span class="w">Локальные шрифты — плюс к скорости, Core Web Vitals и 152-ФЗ (нет утечки IP на зарубежный CDN).</span></div>
+          <div class="si"><span class="n">next/image</span><span class="w">AVIF/WebP, ленивая загрузка, правильные размеры — ускоряет LCP на фото и видео-постерах.</span></div>
+        </div>
+      </div>
+      <div class="stackgroup">
+        <h3>Рендеринг и SEO-инфраструктура</h3>
+        <div class="stackitems">
+          <div class="si"><span class="n">SSG / статическая генерация</span><span class="w">Лендинги — готовый HTML: мгновенный TTFB и идеальная индексация.</span></div>
+          <div class="si"><span class="n">ISR</span><span class="w">Правки прайса/отзывов из CMS попадают в статику без полного передеплоя.</span></div>
+          <div class="si"><span class="n">Metadata API</span><span class="w">Программные title/description с ключами и гео на каждую страницу.</span></div>
+          <div class="si"><span class="n">JSON-LD Schema.org</span><span class="w">Rich-сниппеты: звёзды, адрес, цены — сейчас разметки нет ни на одном сайте.</span></div>
+          <div class="si"><span class="n">app/sitemap.ts + app/robots.ts</span><span class="w">Авто-генерируемые карта и robots (у скульптуры сейчас 404).</span></div>
+          <div class="si"><span class="n">Canonical + Open Graph/Twitter</span><span class="w">Устранение дублей и корректные превью ссылок в мессенджерах.</span></div>
+        </div>
+      </div>
+      <div class="stackgroup">
+        <h3>Бэкенд и интеграции</h3>
+        <div class="stackitems">
+          <div class="si"><span class="n">Server Actions + Route Handlers</span><span class="w">Обработка форм и вебхуков на сервере — меньше кода, нет открытого эндпоинта для абуза.</span></div>
+          <div class="si"><span class="n">react-hook-form + zod</span><span class="w">Одна схема валидации на клиент и сервер — единый компонент вместо 8 форм evebeauty.</span></div>
+          <div class="si"><span class="n">Telegram Bot API + SMTP</span><span class="w">Заявка мгновенно падает мастеру в Telegram и на почту — ноль потерянных лидов.</span></div>
+          <div class="si"><span class="n">CRM (amoCRM / Bitrix24)</span><span class="w">Лид сразу создаёт сделку — сквозная аналитика «клик → запись → визит».</span></div>
+          <div class="si"><span class="n">Антиспам (honeypot + rate-limit)</span><span class="w">Чистые лиды при платном трафике, CRM не засоряется ботами.</span></div>
+          <div class="si"><span class="n">Headless CMS (Payload / Sanity)</span><span class="w">Клиент сам правит прайс, услуги и отзывы без разработчика.</span></div>
+        </div>
+      </div>
+      <div class="stackgroup">
+        <h3>Аналитика и трекинг</h3>
+        <div class="stackitems">
+          <div class="si"><span class="n">Яндекс Метрика + цели</span><span class="w">На скульптуре — впервые; без счётчика рекламу нельзя измерять.</span></div>
+          <div class="si"><span class="n">@next/third-parties</span><span class="w">Счётчики подключаются без блокировки рендера и просадки скорости.</span></div>
+          <div class="si"><span class="n">Google Search Console + Яндекс Вебмастер</span><span class="w">Мониторинг индексации и ошибок в обеих поисковых системах.</span></div>
+          <div class="si"><span class="n">UTM + связка с CRM</span><span class="w">Каждая заявка несёт источник — видно, какая кампания приводит клиентов.</span></div>
+        </div>
+      </div>
+      <div class="stackgroup">
+        <h3>Инфраструктура, деплой и безопасность</h3>
+        <div class="stackitems">
+          <div class="si"><span class="n">Docker (мультистейдж)</span><span class="w">Оба сайта в изолированных контейнерах на своём сервере — воспроизводимый деплой.</span></div>
+          <div class="si"><span class="n">Caddy (reverse proxy + wildcard SSL)</span><span class="w">Авто-HTTPS, редирект www→без-www и security-заголовки одним конфигом.</span></div>
+          <div class="si"><span class="n">Корректный Cache-Control</span><span class="w">Чиним отключённый кэш скульптуры — immutable-ассеты для CDN-эффекта.</span></div>
+          <div class="si"><span class="n">pnpm + Turborepo</span><span class="w">Быстрые сборки с кэшем — уложиться в неделю на два сайта реально.</span></div>
+          <div class="si"><span class="n">CI (lint + typecheck + build)</span><span class="w">Автопроверка не пускает сломанную сборку на прод.</span></div>
+          <div class="si"><span class="n">Security-заголовки (HSTS/CSP)</span><span class="w">У скульптуры их нет — добавляем на уровне прокси для обоих доменов.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 09 TIMELINE ============ -->
+<section id="timeline" class="band-2">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">09</span>&nbsp;&nbsp;План на неделю</div>
+      <h2>7 дней — параллельными потоками</h2>
+      <p class="sub">Дизайн, разработка, SEO, реклама и карты идут внахлёст, поэтому за неделю реально сдать оба сайта и весь контур продвижения. Срок отсчитывается от предоставления всех доступов и контента.</p>
+    </div>
+    <div class="timeline reveal">
+      <div class="day"><div class="daymark"><div class="dn">01</div><div class="dd">День</div></div><div class="dayline"><h3>Бриф, контент и семантическое ядро</h3><ul class="clean"><li>Установочный созвон, доступы к доменам, хостингам, Метрике, картам, аккаунтам Яндекс Бизнес и 2ГИС.</li><li>Инвентаризация контента и фактуры: услуги, цены, гео, УТП обоих сайтов.</li><li>Сбор и кластеризация семантического ядра под обе ниши.</li><li>Копирайтинг структуры: опечатка адреса, thin-content, переписывание description.</li></ul></div></div>
+      <div class="day"><div class="daymark"><div class="dn">02</div><div class="dd">День</div></div><div class="dayline"><h3>Дизайн-макеты обоих сайтов</h3><ul class="clean"><li>Дизайн-концепции: премиальная бьюти-эстетика (evebeauty) и сдержанная студийная подача (скульптура).</li><li>Ключевые экраны десктоп + мобайл: первый экран, услуги/прайс, отзывы, форма, футер.</li><li>Проектирование единой формы брони взамен 8 дублей.</li><li>Согласование макетов с клиентом.</li></ul></div></div>
+      <div class="day"><div class="daymark"><div class="dn">03</div><div class="dd">День</div></div><div class="dayline"><h3>Разработка: каркас и вёрстка на Next.js</h3><ul class="clean"><li>Инициализация двух проектов Next.js 15 + React 19 + TS + Tailwind.</li><li>Адаптивная вёрстка обоих сайтов (mobile-first, все брейкпоинты), lang=ru и поддержка IDN.</li><li>Перенос контента и медиа, оптимизация изображений (next/image).</li><li>Формы на react-hook-form + zod, серверная обработка заявок.</li></ul></div></div>
+      <div class="day"><div class="daymark"><div class="dn">04</div><div class="dd">День</div></div><div class="dayline"><h3>Интеграции, аналитика и производительность</h3><ul class="clean"><li>Яндекс Метрика на оба сайта (для скульптуры — впервые), вебвизор и цели.</li><li>Исправление кэширования и security-заголовки.</li><li>Мессенджеры и карты, проверка кликабельности.</li><li>Оптимизация Core Web Vitals — уход от 663 КБ и 92 скриптов.</li></ul></div></div>
+      <div class="day"><div class="daymark"><div class="dn">05</div><div class="dd">День</div></div><div class="dayline"><h3>Продвинутое SEO и микроразметка</h3><ul class="clean"><li>Schema.org на оба сайта: LocalBusiness + Service + Offer + Breadcrumb + FAQ.</li><li>Генерация sitemap.xml и robots.txt.</li><li>Canonical, устранение дублей, единственный H1, иерархия заголовков.</li><li>Open Graph/Twitter, перелинковка, ЧПУ, alt, on-page под ядро.</li></ul></div></div>
+      <div class="day"><div class="daymark"><div class="dn">06</div><div class="dd">День</div></div><div class="dayline"><h3>Вебмастера, реклама и организации</h3><ul class="clean"><li>Верификация в Вебмастере и Search Console, отправка sitemap, переобход.</li><li>Кампании Яндекс Директ под каждый сайт: структура, объявления, гео, минус-слова, цели.</li><li>Перенастройка карточек Яндекс Бизнес и 2ГИС.</li><li>UTM-разметка и связка Директ ↔ Метрика.</li></ul></div></div>
+      <div class="day"><div class="daymark"><div class="dn">07</div><div class="dd">День</div></div><div class="dayline"><h3>QA, юр-требования и запуск</h3><ul class="clean"><li>Сквозное QA: кросс-браузер, мобайл/десктоп, формы, доходимость лидов, карты.</li><li>152-ФЗ (политика ПДн) и cookie-баннер, проверка согласий.</li><li>Деплой на прод (Docker + Caddy, wildcard SSL), DNS, редиректы, HTTPS.</li><li>Финальный Lighthouse/Core Web Vitals, валидация Schema, сдача и передача доступов.</li></ul></div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ 10 PRICING ============ -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow"><span class="idx">10</span>&nbsp;&nbsp;Стоимость</div>
+      <h2>Прозрачная смета — 400 000 ₽ за всё</h2>
+      <p class="sub">Фиксированная стоимость работ. Всё, что нужно для запуска обоих сайтов и продвижения, — в одной строке бюджета.</p>
+    </div>
+
+    <div class="price-wrap reveal">
+      <div class="price-row"><div class="it">Разработка сайта evebeauty.ru на Next.js 15 (дизайн, адаптивная вёрстка, формы, перенос с Tilda, владение кодом)</div><div class="pr">110 000 ₽</div></div>
+      <div class="price-row"><div class="it">Разработка сайта скульптура.com на Next.js 15 (дизайн, вёрстка, поддержка IDN-домена, миграция с PHP)</div><div class="pr">105 000 ₽</div></div>
+      <div class="price-row"><div class="it">Продвинутое SEO обоих сайтов: семантика, on-page, микроразметка Schema.org, sitemap/robots, canonical, Open Graph</div><div class="pr">70 000 ₽</div></div>
+      <div class="price-row"><div class="it">Настройка Google Search Console + Яндекс Вебмастер (верификация, sitemap, переобход, мониторинг индексации)</div><div class="pr">15 000 ₽</div></div>
+      <div class="price-row"><div class="it">Настройка рекламы Яндекс Директ на 2 сайта (кампании, объявления, гео-таргет, минус-слова, связка с целями Метрики)</div><div class="pr">45 000 ₽</div></div>
+      <div class="price-row"><div class="it">Перенастройка организаций в Яндекс Бизнес и 2ГИС (2 карточки: реквизиты, услуги, гео, фото, рубрики)</div><div class="pr">20 000 ₽</div></div>
+      <div class="price-row"><div class="it">Аналитика, интеграции и производительность (Яндекс Метрика с целями, кэш, security-заголовки, Core Web Vitals)</div><div class="pr">20 000 ₽</div></div>
+      <div class="price-row"><div class="it">Хостинг/деплой (Docker + Caddy, SSL, DNS), 152-ФЗ + cookie-баннер, сквозное QA и приёмка</div><div class="pr">15 000 ₽</div></div>
+      <div class="price-total"><div class="tl">Итого за работы</div><div class="tv">400 000 ₽</div></div>
+    </div>
+    <p class="price-note">Рекламный бюджет Яндекс Директа оплачивается клиентом напрямую площадке и не входит в стоимость работ.</p>
+
+    <div class="grid g2 reveal" style="margin-top:2.4rem">
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Входит в стоимость</p>
+        <ul class="check">
+          <li>Полная разработка двух сайтов на Next.js с передачей исходного кода в собственность</li>
+          <li>Индивидуальный дизайн, адаптив, перенос и копирайтинг контента</li>
+          <li>До двух раундов правок макетов на этапе согласования дизайна</li>
+          <li>Продвинутое техническое и on-page SEO + микроразметка Schema.org</li>
+          <li>Подключение в Search Console и Яндекс Вебмастер</li>
+          <li>Яндекс Метрика с целями на обоих сайтах (на скульптуре — с нуля)</li>
+          <li>Настройка кампаний Яндекс Директ со связкой с целями и UTM</li>
+          <li>Перенастройка карточек Яндекс Бизнес и 2ГИС</li>
+          <li>Единая форма заявки, 152-ФЗ, security, HTTPS, деплой на прод</li>
+          <li>Сквозное QA, замеры Core Web Vitals и гарантийная поддержка</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Не входит</p>
+        <ul class="cross">
+          <li>Рекламный бюджет и открутка в Яндекс Директ (оплата напрямую площадке)</li>
+          <li>Ежемесячное ведение рекламы после запуска (отдельный договор сопровождения)</li>
+          <li>Профессиональная фото- и видеосъёмка интерьеров и процедур</li>
+          <li>Контент-продакшн сверх согласованного объёма страниц (блог, статьи)</li>
+          <li>Оплата доменов, продление хостинга, платежи третьим лицам</li>
+          <li>Эквайринг, онлайн-касса, интеграция телефонии</li>
+          <li>Постоянное SEO-продвижение и закупка ссылок</li>
+          <li>Новые функции и доработки после приёмки (вне гарантийных дефектов)</li>
+        </ul>
+        <p class="sub-label" style="color:var(--bronze);margin-top:1.6rem">Порядок оплаты</p>
+        <ul class="clean">
+          <li>50% предоплата (200 000 ₽) при старте, 50% по факту сдачи.</li>
+          <li>Возможна разбивка на 3 транша: 40% / 30% / 30% по этапам.</li>
+          <li>Оплата по счёту на реквизиты ИП, закрывающие документы.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ============ GUARANTEES / KPI ============ -->
+<section id="result" class="band-2">
+  <div class="wrap">
+    <div class="sect-head reveal">
+      <div class="eyebrow">Гарантии и результат</div>
+      <h2>Что вы получаете на выходе</h2>
+    </div>
+    <div class="grid g2 reveal">
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Гарантии</p>
+        <ul class="check">
+          <li>Оптимизация обоих сайтов до зелёной зоны Core Web Vitals (LCP, CLS, INP) по PageSpeed Insights — на нашем коде</li>
+          <li>Корректная индексация: верификация в Вебмастере и Search Console, sitemap принят</li>
+          <li>Валидная микроразметка Schema.org и Open Graph — без ошибок в валидаторах</li>
+          <li>Все формы работают: заявки доходят, цели в Метрике фиксируются</li>
+          <li>Кросс-браузерная и адаптивная совместимость</li>
+          <li>Гарантийный период 30 дней: бесплатное устранение дефектов по нашей вине</li>
+          <li>Передача исходного кода и всех доступов — полное владение сайтами</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="sub-label" style="color:var(--bronze)">Измеримые ориентиры</p>
+        <ul class="clean">
+          <li>PageSpeed 90+ на мобайле для обоих сайтов (evebeauty уходит с 663 КБ и 92 скриптов).</li>
+          <li>100% покрытие Метрикой — впервые появляется измеримость рекламы на скульптуре.</li>
+          <li>Обе площадки в индексе Яндекса и Google, рост показов в первые 2–4 недели.</li>
+          <li>Рост позиций по гео-коммерческим запросам (Мурино / Беговая) на горизонте 1–3 месяцев.</li>
+          <li>Сквозная воронка Директ → Метрика → форма: каждая заявка измеряется как конверсия.</li>
+          <li>Снижение стоимости лида по мере накопления статистики и оптимизации.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="sub reveal" style="margin-top:2.2rem;max-width:66ch;color:var(--muted)">Мы студия, которая строит сайты только на современном стеке — Next.js, React и TypeScript — и не работает с конструкторами, ограничивающими скорость и SEO. Ведём проект от первой строки кода до первых заявок: разработка, техническое SEO, аналитика, реклама, карточки в Яндекс Бизнес и 2ГИС — всё делают одни руки и синхронно. Вы получаете не просто сайт, а работающий канал привлечения клиентов.</p>
+  </div>
+</section>
+
+<!-- ============ CTA / FOOTER ============ -->
+<section class="cta">
+  <div class="wrap cta-inner">
+    <div class="eyebrow" style="justify-content:center;color:var(--champagne)">Готовы начать</div>
+    <h2 style="margin-top:1.3rem">Запускаем через <em>7 дней</em> — от кода до заявок</h2>
+    <p class="lead">Согласуем старт, собираем доступы и в тот же день начинаем бриф и семантику. Через неделю оба сайта работают на проде, реклама запущена, карточки перенастроены.</p>
+    <div class="foot" style="justify-content:center">
+      <span>Коммерческое предложение · evebeauty.ru + скульптура.com</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return;}
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}
+      });
+    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(e){io.observe(e);});
+  })();
+</script>
+</body>
+</html>
